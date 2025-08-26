@@ -16,6 +16,7 @@ interface TransactionPreviewProps {
 function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: TransactionPreviewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editAmount, setEditAmount] = useState(parsedSplit.totalAmount);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleSaveEdit = () => {
     const updatedSplit = {
@@ -32,6 +33,11 @@ function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: Tra
 
   const totalEth = parseFloat(parsedSplit.totalAmount);
   const gasCostEth = 0.01; // Estimated gas cost
+
+  const handleConfirmExecute = () => {
+    setShowConfirmation(false);
+    onExecute();
+  };
 
   return (
     <div className="bg-base-100 border-base-300 border shadow-md shadow-secondary rounded-3xl px-6 lg:px-8 mb-6 space-y-1 py-4">
@@ -108,7 +114,7 @@ function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: Tra
 
       <div className="flex justify-end gap-4">
         <button
-          onClick={onExecute}
+          onClick={() => setShowConfirmation(true)}
           disabled={isExecuting || parsedSplit.recipients.length === 0 || !!parsedSplit.error}
           className="btn btn-primary"
         >
@@ -116,6 +122,50 @@ function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: Tra
           Execute Transaction
         </button>
       </div>
+
+      {showConfirmation && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Confirm Transaction</h3>
+            <p className="py-4">
+              You are about to execute a transaction that will split{" "}
+              <span className="font-bold text-primary">{parsedSplit.totalAmount} ETH</span> among{" "}
+              <span className="font-bold">{parsedSplit.recipients.length} recipients</span>.
+            </p>
+
+            <div className="bg-base-200 p-4 rounded-lg mb-4">
+              <div className="text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span>Total Amount:</span>
+                  <span className="font-mono">{parsedSplit.totalAmount} ETH</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Est. Gas Cost:</span>
+                  <span className="font-mono">{gasCostEth} ETH</span>
+                </div>
+                <div className="flex justify-between font-bold border-t pt-1">
+                  <span>Total Cost:</span>
+                  <span className="font-mono">{(totalEth + gasCostEth).toFixed(4)} ETH</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-warning text-sm mb-4">
+              ⚠️ This action cannot be undone. Make sure all recipient addresses are correct.
+            </p>
+
+            <div className="modal-action">
+              <button onClick={() => setShowConfirmation(false)} className="btn btn-ghost" disabled={isExecuting}>
+                Cancel
+              </button>
+              <button onClick={handleConfirmExecute} className="btn btn-primary" disabled={isExecuting}>
+                {isExecuting && <span className="loading loading-spinner"></span>}
+                Confirm & Execute
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -188,14 +238,14 @@ export default function SplitPage() {
           <span className="block text-lg font-normal">Enter natural language instructions to split ETH</span>
         </h1>
 
-        <div className="bg-base-100 border-base-300 border shadow-md shadow-secondary rounded-3xl px-6 lg:px-8 mb-6 space-y-1 py-4">
+        <div className="bg-base-100 border-base-300 border shadow-md shadow-secondary px-6 lg:px-8 mb-6 space-y-1 py-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold mb-0">Enter Instructions</h2>
             <div className="text-sm text-base-content/60">{input.length}/500 characters</div>
           </div>
 
           <textarea
-            className="textarea textarea-bordered w-full h-32 text-base"
+            className="textarea textarea-bordered w-full h-32 text-base rounded-none"
             placeholder="Example: Split 10 ETH equally among these addresses: 0x123..., 0x456..., 0x789..."
             value={input}
             onChange={e => setInput(e.target.value.slice(0, 500))}
