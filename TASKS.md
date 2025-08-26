@@ -5,20 +5,22 @@
 ### ✅ Project Setup
 - [x] Update SPECS.md for GPT-5-mini and MVP focus
 - [x] Create .env.local and .env.example files
+- [x] Add development rules and Git commit guidelines
+- [x] Update project homepage for Splait branding
 
-### 🚧 Smart Contract Development
-- [ ] Implement basic FundSplitter.sol contract
-- [ ] Add contract tests
+### ✅ Smart Contract Development
+- [x] Implement basic FundSplitter.sol contract
+- [x] Add comprehensive contract tests (16 test cases)
 - [ ] Deploy to local chain and Sepolia
 
-### 🚧 AI Integration  
-- [ ] Create basic AI parser service for equal splits
-- [ ] Add input validation and error handling
-- [ ] Test parsing accuracy
+### ✅ AI Integration  
+- [x] Create basic AI parser service for equal splits
+- [x] Add input validation and error handling
+- [ ] Test parsing accuracy with real OpenAI API
 
-### 🚧 Frontend Development
-- [ ] Build input interface for natural language
-- [ ] Create transaction preview component  
+### ✅ Frontend Development
+- [x] Build input interface for natural language
+- [x] Create transaction preview component  
 - [ ] Integrate contract interactions with Scaffold-ETH hooks
 - [ ] Add basic error handling and loading states
 
@@ -47,5 +49,5 @@
 
 ---
 
-**Current Focus**: Basic FundSplitter.sol contract implementation
-**Target**: Simplest working solution for equal ETH splits
+**Current Focus**: Contract deployment and frontend integration
+**Target**: Complete working MVP with contract deployment
