@@ -43,6 +43,8 @@ yarn next:build         # Build production frontend
 yarn test              # Run all tests (foundry tests)
 yarn lint              # Lint all packages
 yarn format            # Format all packages
+yarn return-funds      # Return test funds to main address (Node.js)
+yarn return-funds:bash # Return test funds to main address (Bash/Cast)
 ```
 
 ### Deployment
@@ -103,6 +105,22 @@ Components are located in `packages/nextjs/components/scaffold-eth/`.
 - Deploy scripts: `packages/foundry/script/`
 - Frontend config: `packages/nextjs/scaffold.config.ts`
 - Contract ABIs: `packages/nextjs/contracts/deployedContracts.ts`
+
+## AI Configuration
+
+- **Model**: GPT-5-mini (configured in `packages/nextjs/services/aiParser.ts`)
+- **API Key**: Set in `.env.local` as `OPENAI_API_KEY`
+- **Parser**: Handles natural language → structured split data conversion
+
+## Test Accounts
+
+For testing purposes, use these accounts:
+- `0xA72505F52928f5255FBb82a031ae2d0980FF6621`
+- `0xeD5C89Ae41516A96875B2c15223F9286C79f11fb`
+- `0x3300B6cD81b37800dc72fa0925245c867EC281Ad`
+- `0xd0c96393E48b11D22A64BeD22b3Aa39621BB77ed`
+
+**Fund Return**: Use `yarn return-funds` to return all test funds to `0x4ec44e6a10a87F77c5b34b9BF518fAea306d4079`
 
 ## Development Notes
 
