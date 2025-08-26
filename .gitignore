@@ -15,6 +15,9 @@ node_modules
 # misc
 .DS_Store
 
+# environment variables
+.env.local
+
 # IDE
 .vscode
 .idea
