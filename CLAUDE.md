@@ -15,10 +15,12 @@ This is a Scaffold-ETH 2 (SE-2) dApp built with NextJS, RainbowKit, Foundry, Wag
 
 ### Core Development Flow
 ```bash
-yarn chain          # Start local blockchain (Foundry)
-yarn deploy         # Deploy contracts to local chain
+yarn chain          # Start local blockchain (Foundry/Anvil)
+yarn deploy         # Deploy contracts to local chain (automatically detects Anvil)
 yarn start          # Start Next.js frontend dev server
 ```
+
+**Note**: `yarn deploy` automatically deploys contracts to the local Anvil node when it's running. No need for manual contract deployment commands.
 
 ### Smart Contract Development
 ```bash
