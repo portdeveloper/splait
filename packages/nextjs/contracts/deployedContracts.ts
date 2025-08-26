@@ -4,6 +4,165 @@
  */
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
-const deployedContracts = {} as const;
+const deployedContracts = {
+  31337: {
+    FundSplitter: {
+      address: "0x700b6A60ce7EaaEA56F065753d8dcB9653dbAD35",
+      deployedOnBlock: 1,
+      abi: [
+        {
+          type: "function",
+          name: "MAX_RECIPIENTS",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "calculateEqualSplit",
+          inputs: [
+            {
+              name: "totalAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "recipientCount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "amounts",
+              type: "uint256[]",
+              internalType: "uint256[]",
+            },
+          ],
+          stateMutability: "pure",
+        },
+        {
+          type: "function",
+          name: "getBalance",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "splitFunds",
+          inputs: [
+            {
+              name: "splits",
+              type: "tuple[]",
+              internalType: "struct FundSplitter.Split[]",
+              components: [
+                {
+                  name: "recipient",
+                  type: "address",
+                  internalType: "address payable",
+                },
+                {
+                  name: "amount",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+              ],
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
+        },
+        {
+          type: "event",
+          name: "FundsSplit",
+          inputs: [
+            {
+              name: "sender",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "totalAmount",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "recipientCount",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "Transfer",
+          inputs: [
+            {
+              name: "recipient",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "InsufficientFunds",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "InvalidRecipient",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "NoRecipients",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "TooManyRecipients",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "TransferFailed",
+          inputs: [
+            {
+              name: "recipient",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+      ],
+    },
+  },
+} as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;

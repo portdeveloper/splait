@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { parseEther } from "viem";
 import { EtherInput } from "~~/components/scaffold-eth";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { type ParsedSplit, parseUserInput } from "~~/services/aiParser";
 
 interface TransactionPreviewProps {
@@ -124,6 +126,8 @@ export default function SplitPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
 
+  const { writeContractAsync: splitFunds } = useScaffoldWriteContract("FundSplitter");
+
   const handleParse = async () => {
     if (!input.trim()) return;
 
@@ -143,13 +147,27 @@ export default function SplitPage() {
 
     setIsExecuting(true);
     try {
-      // TODO: Integrate with smart contract
-      console.log("Executing transaction:", parsedSplit);
-      // Simulate transaction delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      alert("Transaction executed successfully! (Simulated)");
+      // Convert parsed split data to contract format
+      const splits = parsedSplit.recipients.map(recipient => ({
+        recipient: recipient.address as `0x${string}`,
+        amount: parseEther(recipient.amount),
+      }));
+
+      const totalValue = parseEther(parsedSplit.totalAmount);
+
+      console.log("Executing transaction:", { splits, totalValue });
+
+      // Execute the smart contract call
+      await splitFunds({
+        functionName: "splitFunds",
+        args: [splits],
+        value: totalValue,
+      });
+
+      alert("Transaction executed successfully!");
     } catch (error) {
-      console.error("Execution error:", error);
+      console.error("Transaction error:", error);
+      alert(`Transaction failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setIsExecuting(false);
     }
