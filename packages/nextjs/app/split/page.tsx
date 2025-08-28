@@ -22,10 +22,13 @@ function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: Tra
     const updatedSplit = {
       ...parsedSplit,
       totalAmount: editAmount,
-      recipients: parsedSplit.recipients.map(recipient => ({
-        ...recipient,
-        amount: (parseFloat(editAmount) / parsedSplit.recipients.length).toString(),
-      })),
+      recipients:
+        parsedSplit.splitType === "equal"
+          ? parsedSplit.recipients.map(recipient => ({
+              ...recipient,
+              amount: (parseFloat(editAmount) / parsedSplit.recipients.length).toString(),
+            }))
+          : parsedSplit.recipients, // Keep custom amounts unchanged when editing total
     };
     onEdit(updatedSplit);
     setIsEditing(false);
@@ -102,7 +105,7 @@ function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: Tra
         <div className="stat">
           <div className="stat-title">Recipients</div>
           <div className="stat-value">{parsedSplit.recipients.length}</div>
-          <div className="stat-desc">Equal split</div>
+          <div className="stat-desc">{parsedSplit.splitType === "equal" ? "Equal split" : "Custom amounts"}</div>
         </div>
 
         <div className="stat">
@@ -224,9 +227,9 @@ export default function SplitPage() {
   };
 
   const exampleInputs = [
-    "Split 10 ETH equally among these addresses: 0x742C3cF9Af45f91B109a81EfEaf11535ECDe9571, 0x8ba1f109551bD432803012645Hac136c2c7F31e, 0x2F62aC54881bF41c5C3C25b9ab2F8EDe60D95234",
-    "Distribute 5 ETH among 0x1234567890123456789012345678901234567890, 0x0987654321098765432109876543210987654321",
-    "Send equal amounts of 2.5 ETH to: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045, 0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed, 0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+    "Split 10 ETH equally among these addresses: 0xA72505F52928f5255FBb82a031ae2d0980FF6621, 0xeD5C89Ae41516A96875B2c15223F9286C79f11fb, 0x3300B6cD81b37800dc72fa0925245c867EC281Ad",
+    "Send 3 ETH to 0xA72505F52928f5255FBb82a031ae2d0980FF6621 and 7 ETH to 0xeD5C89Ae41516A96875B2c15223F9286C79f11fb",
+    "Distribute 2 ETH to 0x3300B6cD81b37800dc72fa0925245c867EC281Ad, 1.5 ETH to 0xd0c96393E48b11D22A64BeD22b3Aa39621BB77ed, and 0.5 ETH to 0xA72505F52928f5255FBb82a031ae2d0980FF6621",
   ];
 
   return (
@@ -286,8 +289,8 @@ export default function SplitPage() {
             <li>Execute the batch transfer in a single transaction</li>
           </ol>
 
-          <div className="alert alert-info">
-            <span>MVP: Currently supports equal splits only. Weighted splits coming soon!</span>
+          <div className="alert alert-success">
+            <span>✅ Supports both equal splits and custom amounts!</span>
           </div>
         </div>
       </div>
