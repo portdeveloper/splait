@@ -10,14 +10,12 @@
 
 ### ✅ Smart Contract Development
 - [x] Implement basic FundSplitter.sol contract
-- [x] Add comprehensive contract tests (16 test cases)
 - [x] Deploy to local chain using `yarn deploy` (automatic Anvil detection)
 - [ ] Deploy to Sepolia testnet
 
 ### ✅ AI Integration  
 - [x] Create basic AI parser service for equal splits
 - [x] Add input validation and error handling
-- [ ] Test parsing accuracy with real OpenAI API
 
 ### ✅ Frontend Development
 - [x] Build input interface for natural language
@@ -25,8 +23,8 @@
 - [ ] Integrate contract interactions with Scaffold-ETH hooks
 - [ ] Add basic error handling and loading states
 
-### ✅ Integration & Testing
-- [x] Test end-to-end MVP flow with local deployment
+### ✅ Integration
+- [x] End-to-end MVP flow with local deployment
 - [x] Integrate contract with frontend using Scaffold-ETH hooks
 - [ ] Deploy smart contract to Sepolia
 - [ ] Deploy frontend to Vercel
