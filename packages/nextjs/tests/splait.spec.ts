@@ -3,23 +3,30 @@ import { expect, test } from "@playwright/test";
 // Helper function to reliably fill textarea and enable Parse Instructions button
 async function fillInputAndWaitForButton(page: any, testInput: string) {
   const textarea = page.getByPlaceholder(/Example: Split 10 ETH equally/);
-  const parseButton = page.getByText("Parse Instructions");
 
-  // Clear any existing text first
-  await textarea.clear();
-  await page.waitForTimeout(100);
-
-  // Fill the input using fill() method
+  // Multiple approaches to ensure React state updates
   await textarea.fill(testInput);
+  await textarea.blur();
+  await textarea.focus();
+  await textarea.dispatchEvent("input");
+  await textarea.dispatchEvent("change");
 
-  // Trigger input event manually to ensure React state updates
-  await textarea.evaluate((el: HTMLTextAreaElement) => {
-    el.dispatchEvent(new Event("input", { bubbles: true }));
-    el.dispatchEvent(new Event("change", { bubbles: true }));
-  });
+  // Wait for React state to update with retry logic
+  let attempts = 0;
+  const maxAttempts = 10;
 
-  // Wait for the button to become enabled
-  await expect(parseButton).toBeEnabled({ timeout: 15000 });
+  while (attempts < maxAttempts) {
+    const isEnabled = await page.getByText("Parse Instructions").isEnabled();
+    if (isEnabled) {
+      break;
+    }
+
+    await page.waitForTimeout(200);
+    await textarea.dispatchEvent("input"); // Re-trigger if needed
+    attempts++;
+  }
+
+  await expect(page.getByText("Parse Instructions")).toBeEnabled();
 }
 
 test.describe("Splait - Fund Splitting Tests", () => {
@@ -37,8 +44,13 @@ test.describe("Splait - Fund Splitting Tests", () => {
     const testInput =
       "Split 10 ETH equally among 0xA72505F52928f5255FBb82a031ae2d0980FF6621, 0xeD5C89Ae41516A96875B2c15223F9286C79f11fb, 0x3300B6cD81b37800dc72fa0925245c867EC281Ad";
 
-    // Use the helper function for reliable input handling
-    await fillInputAndWaitForButton(page, testInput);
+    // Fill the textarea and ensure it triggers the onChange event
+    const textarea = page.getByPlaceholder(/Example: Split 10 ETH equally/);
+    await textarea.fill(testInput);
+    await textarea.blur(); // Trigger any onBlur events
+
+    // Wait for the Parse Instructions button to become enabled
+    await expect(page.getByText("Parse Instructions")).toBeEnabled();
 
     // Click parse button
     await page.getByText("Parse Instructions").click();
@@ -140,7 +152,10 @@ test.describe("Splait - Fund Splitting Tests", () => {
     const testInput =
       "Distribute 2 ETH to 0x3300B6cD81b37800dc72fa0925245c867EC281Ad, 1.5 ETH to 0xd0c96393E48b11D22A64BeD22b3Aa39621BB77ed, and 0.5 ETH to 0xA72505F52928f5255FBb82a031ae2d0980FF6621";
 
-    await fillInputAndWaitForButton(page, testInput);
+    const textarea = page.getByPlaceholder(/Example: Split 10 ETH equally/);
+    await textarea.fill(testInput);
+    await textarea.blur();
+    await expect(page.getByText("Parse Instructions")).toBeEnabled();
     await page.getByText("Parse Instructions").click();
 
     await expect(page.getByText("Transaction Preview")).toBeVisible({ timeout: 15000 });
@@ -170,7 +185,10 @@ test.describe("Splait - Fund Splitting Tests", () => {
     const testInput =
       "Split 1 ETH equally between 0xA72505F52928f5255FBb82a031ae2d0980FF6621 and 0xeD5C89Ae41516A96875B2c15223F9286C79f11fb";
 
-    await fillInputAndWaitForButton(page, testInput);
+    const textarea = page.getByPlaceholder(/Example: Split 10 ETH equally/);
+    await textarea.fill(testInput);
+    await textarea.blur();
+    await expect(page.getByText("Parse Instructions")).toBeEnabled();
     await page.getByText("Parse Instructions").click();
 
     await expect(page.getByText("Transaction Preview")).toBeVisible();
@@ -232,7 +250,10 @@ test.describe("Splait - Fund Splitting Tests", () => {
     const testInput =
       "Split 10 ETH equally between 0xA72505F52928f5255FBb82a031ae2d0980FF6621 and 0xeD5C89Ae41516A96875B2c15223F9286C79f11fb";
 
-    await fillInputAndWaitForButton(page, testInput);
+    const textarea = page.getByPlaceholder(/Example: Split 10 ETH equally/);
+    await textarea.fill(testInput);
+    await textarea.blur();
+    await expect(page.getByText("Parse Instructions")).toBeEnabled();
     await page.getByText("Parse Instructions").click();
 
     // Wait for transaction preview and parsing to complete
@@ -267,21 +288,10 @@ test.describe("Splait - Fund Splitting Tests", () => {
     const testInput =
       "Split 1 ETH equally between 0xA72505F52928f5255FBb82a031ae2d0980FF6621 and 0xeD5C89Ae41516A96875B2c15223F9286C79f11fb";
 
-    const textarea = page.getByPlaceholder(/Example: Split 10 ETH equally/);
-    await textarea.fill(testInput);
-
-    // Trigger input event manually to ensure React state updates
-    await textarea.evaluate((el: HTMLTextAreaElement) => {
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-      el.dispatchEvent(new Event("change", { bubbles: true }));
-    });
-
-    // Wait briefly for state update
-    await page.waitForTimeout(100);
+    await page.getByPlaceholder(/Example: Split 10 ETH equally/).fill(testInput);
 
     // Click parse and check loading state
     const parseButton = page.getByText("Parse Instructions");
-    await expect(parseButton).toBeEnabled({ timeout: 5000 });
     await parseButton.click();
 
     // Check that button shows loading state (briefly)
