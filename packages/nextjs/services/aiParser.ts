@@ -6,7 +6,7 @@ export interface ParsedSplit {
     address: string;
     amount: string;
   }>;
-  splitType: "equal" | "custom";
+  splitType: "equal";
   confidence: number;
   error?: string;
 }

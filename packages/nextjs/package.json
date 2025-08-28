@@ -11,9 +11,6 @@
     "lint": "next lint",
     "serve": "next start",
     "start": "next dev",
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:report": "playwright show-report",
     "vercel": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env VERCEL_TELEMETRY_DISABLED=1",
     "vercel:login": "vercel login",
     "vercel:yolo": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true --build-env VERCEL_TELEMETRY_DISABLED=1"
@@ -41,7 +38,6 @@
     "zustand": "~5.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
     "@tailwindcss/postcss": "4.0.15",
     "@trivago/prettier-plugin-sort-imports": "~4.3.0",
     "@types/node": "~18.19.50",
@@ -53,7 +49,6 @@
     "eslint-config-next": "~15.2.3",
     "eslint-config-prettier": "~10.1.1",
     "eslint-plugin-prettier": "~5.2.4",
-    "playwright": "^1.55.0",
     "postcss": "~8.4.45",
     "prettier": "~3.5.3",
     "tailwindcss": "4.1.3",
