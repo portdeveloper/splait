@@ -12,27 +12,19 @@ interface ParsedSplit {
   error?: string;
 }
 
-const SYSTEM_PROMPT = `You are an AI that parses natural language instructions for splitting cryptocurrency funds.
+const SYSTEM_PROMPT = `You parse ETH split requests. Given input text, extract:
+1. Total ETH amount
+2. List of Ethereum addresses
 
-Extract the following information:
-1. Total amount to split (in ETH)
-2. Ethereum addresses of recipients
-3. Individual amounts for each recipient (equal splits for now)
+For equal splits, divide total by number of addresses.
 
-Rules:
-- Only process equal splits (divide total amount equally among recipients)
-- Validate that all addresses are valid Ethereum addresses (40 hex characters, starting with 0x)
-- Ensure amounts sum to the total
-- Return confidence score (0-1) based on instruction clarity
-
-Example input: "Split 10 ETH equally among 0x742C3cF9Af45f91B109a81EfEaf11535ECDe9571, 0x8ba1f109551bD432803012645Hac136c2c7F31e"
-Example output: {"totalAmount": "10", "recipients": [{"address": "0x742c3cf9af45f91b109a81efeaf11535ecde9571", "amount": "5"}, {"address": "0x8ba1f109551bd432803012645hac136c2c7f31e", "amount": "5"}], "splitType": "equal", "confidence": 0.95}
-
-Return only valid JSON, no additional text.`;
+Return ONLY this JSON structure, nothing else:
+{"totalAmount":"[amount]","recipients":[{"address":"[addr]","amount":"[split_amount]"}],"splitType":"equal","confidence":1.0}`;
 
 export async function POST(request: NextRequest) {
   try {
     const { input } = await request.json();
+    console.log("API Request - Input:", input);
 
     if (!input || typeof input !== "string") {
       return NextResponse.json({ error: "Invalid input provided" }, { status: 400 });
@@ -54,9 +46,10 @@ export async function POST(request: NextRequest) {
         model: "gpt-5-mini",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: input },
+          { role: "user", content: `Parse this: ${input}\n\nReturn JSON only.` },
         ],
-        max_completion_tokens: 1000,
+        max_completion_tokens: 1500,
+        response_format: { type: "json_object" },
       }),
     });
 
@@ -67,17 +60,36 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
+    console.log("OpenAI Response:", data);
+
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error("Invalid OpenAI response structure:", data);
+      return NextResponse.json({ error: "Invalid OpenAI response structure" }, { status: 500 });
+    }
+
     const content = data.choices[0].message.content;
+    console.log("Parsed Content:", content);
+
+    if (!content) {
+      console.error("Empty content from OpenAI, using fallback parser");
+      const fallbackResult = fallbackParser(input);
+      console.log("Fallback result:", fallbackResult);
+      return NextResponse.json(fallbackResult);
+    }
 
     let parsed: ParsedSplit;
     try {
       parsed = JSON.parse(content);
-    } catch {
-      return NextResponse.json({ error: "Invalid JSON response from AI" }, { status: 500 });
+    } catch (parseError) {
+      console.error("JSON parse error, using fallback parser. Error:", parseError, "Content:", content);
+      const fallbackResult = fallbackParser(input);
+      console.log("Fallback result:", fallbackResult);
+      return NextResponse.json(fallbackResult);
     }
 
     // Validate and clean the parsed data
     const validatedSplit = validateAndCleanParsedSplit(parsed);
+    console.log("Validated Split:", validatedSplit);
 
     return NextResponse.json(validatedSplit);
   } catch (error) {
@@ -93,6 +105,43 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
+}
+
+function fallbackParser(input: string): ParsedSplit {
+  console.log("Using fallback parser for input:", input);
+
+  // Extract amount using various patterns
+  const amountMatch = input.match(/(\d+(?:\.\d+)?)\s*ETH/i);
+  const totalAmount = amountMatch ? amountMatch[1] : "0";
+
+  // Extract all Ethereum addresses
+  const addressPattern = /0x[a-fA-F0-9]{40}/g;
+  const addresses = input.match(addressPattern) || [];
+
+  if (addresses.length === 0 || totalAmount === "0") {
+    return {
+      totalAmount: "0",
+      recipients: [],
+      splitType: "equal",
+      confidence: 0,
+      error: "Could not parse input",
+    };
+  }
+
+  // Calculate equal split
+  const amountPerRecipient = (parseFloat(totalAmount) / addresses.length).toString();
+
+  const recipients = addresses.map(address => ({
+    address: address.toLowerCase(),
+    amount: amountPerRecipient,
+  }));
+
+  return {
+    totalAmount,
+    recipients,
+    splitType: "equal",
+    confidence: 0.8, // Lower confidence for fallback parser
+  };
 }
 
 function validateAndCleanParsedSplit(parsed: any): ParsedSplit {

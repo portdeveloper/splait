@@ -224,9 +224,42 @@ export default function SplitPage() {
   };
 
   const exampleInputs = [
-    "Split 10 ETH equally among these addresses: 0x742C3cF9Af45f91B109a81EfEaf11535ECDe9571, 0x8ba1f109551bD432803012645Hac136c2c7F31e, 0x2F62aC54881bF41c5C3C25b9ab2F8EDe60D95234",
-    "Distribute 5 ETH among 0x1234567890123456789012345678901234567890, 0x0987654321098765432109876543210987654321",
-    "Send equal amounts of 2.5 ETH to: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045, 0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed, 0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+    {
+      label: "Dinner Bill",
+      text: "Split dinner bill of 0.05 ETH equally among Alice (0x742C3cF9Af45f91B109a81EfEaf11535ECDe9571), Bob (0x8ba1f109551bD432803012645Hac136c2c7F31e), and Charlie (0x2F62aC54881bF41c5C3C25b9ab2F8EDe60D95234)",
+    },
+    {
+      label: "Team Payment",
+      text: "Distribute 5 ETH equally to team members: 0x1234567890123456789012345678901234567890, 0x0987654321098765432109876543210987654321",
+    },
+    {
+      label: "Event Prizes",
+      text: "Send 0.1 ETH each to winners: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045, 0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed, 0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+    },
+    {
+      label: "Rent Split",
+      text: "Split monthly rent of 2 ETH among roommates at addresses 0xA72505F52928f5255FBb82a031ae2d0980FF6621, 0xeD5C89Ae41516A96875B2c15223F9286C79f11fb, 0x3300B6cD81b37800dc72fa0925245c867EC281Ad",
+    },
+    {
+      label: "Refund",
+      text: "Refund 0.5 ETH equally to customers: 0x742C3cF9Af45f91B109a81EfEaf11535ECDe9571 and 0xd0c96393E48b11D22A64BeD22b3Aa39621BB77ed",
+    },
+    {
+      label: "Hackathon Prizes",
+      text: "Pay out 10 ETH in prizes equally to hackathon winners: 0x4ec44e6a10a87F77c5b34b9BF518fAea306d4079, 0xA72505F52928f5255FBb82a031ae2d0980FF6621, 0xeD5C89Ae41516A96875B2c15223F9286C79f11fb, 0x3300B6cD81b37800dc72fa0925245c867EC281Ad",
+    },
+    {
+      label: "Coffee Run",
+      text: "Split 0.02 ETH for coffee equally between 0x742C3cF9Af45f91B109a81EfEaf11535ECDe9571 and 0x8ba1f109551bD432803012645Hac136c2c7F31e",
+    },
+    {
+      label: "Workshop Fee",
+      text: "Share workshop cost of 1.5 ETH among participants: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045, 0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed, 0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359, 0x742C3cF9Af45f91B109a81EfEaf11535ECDe9571",
+    },
+    {
+      label: "DAO Distribution",
+      text: "Distribute 50 ETH equally to DAO members: 0x742C3cF9Af45f91B109a81EfEaf11535ECDe9571, 0x8ba1f109551bD432803012645Hac136c2c7F31e, 0x2F62aC54881bF41c5C3C25b9ab2F8EDe60D95234, 0x1234567890123456789012345678901234567890, 0x0987654321098765432109876543210987654321, 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045, 0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed, 0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359, 0xA72505F52928f5255FBb82a031ae2d0980FF6621, 0xeD5C89Ae41516A96875B2c15223F9286C79f11fb, 0x3300B6cD81b37800dc72fa0925245c867EC281Ad, 0xd0c96393E48b11D22A64BeD22b3Aa39621BB77ed, 0x4ec44e6a10a87F77c5b34b9BF518fAea306d4079, 0xaB5801a7D398351b8bE11C439e05C5B3259aeC9B, 0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326, 0x388C818CA8B9251b393131C08a736A67ccB19297, 0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990, 0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe, 0x5A0b54D5dc17e0AadC383d2db43B0a0D3E029c4c, 0x9D551b30f1F3Ba9E5f1D9e0FEd67D14D7b8E1c2e, 0x76E2cFc1F5Fa8F6a5b3fC4c8F4788F0116861F9B",
+    },
   ];
 
   return (
@@ -251,13 +284,20 @@ export default function SplitPage() {
             onChange={e => setInput(e.target.value.slice(0, 500))}
           />
 
-          <div className="flex flex-wrap gap-2 mb-4">
-            <span className="text-sm font-semibold">Quick examples:</span>
-            {exampleInputs.map((example, index) => (
-              <button key={index} onClick={() => setInput(example)} className="btn btn-outline btn-xs">
-                Example {index + 1}
-              </button>
-            ))}
+          <div className="mb-4">
+            <span className="text-sm font-semibold block mb-2">Quick examples:</span>
+            <div className="flex flex-wrap gap-2">
+              {exampleInputs.map((example, index) => (
+                <button
+                  key={index}
+                  onClick={() => setInput(example.text)}
+                  className="btn btn-outline btn-xs"
+                  title={example.text}
+                >
+                  {example.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex justify-end">

@@ -27,6 +27,7 @@ export async function parseUserInput(input: string): Promise<ParsedSplit> {
     }
 
     const result = await response.json();
+    console.log("API Response:", result);
     return result;
   } catch (error) {
     console.error("AI parsing error:", error);
