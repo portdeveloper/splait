@@ -12,14 +12,7 @@ interface ParsedSplit {
   error?: string;
 }
 
-const SYSTEM_PROMPT = `You parse ETH split requests. Given input text, extract:
-1. Total ETH amount
-2. List of Ethereum addresses
-
-For equal splits, divide total by number of addresses.
-
-Return ONLY this JSON structure, nothing else:
-{"totalAmount":"[amount]","recipients":[{"address":"[addr]","amount":"[split_amount]"}],"splitType":"equal","confidence":1.0}`;
+const SYSTEM_PROMPT = `You are a JSON API that parses ETH split instructions. Output only valid JSON.`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,9 +39,24 @@ export async function POST(request: NextRequest) {
         model: "gpt-5-mini",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: `Parse this: ${input}\n\nReturn JSON only.` },
+          {
+            role: "user",
+            content: `Extract the total ETH amount and all Ethereum addresses from this text. Calculate equal splits per address.
+            
+Text: ${input}
+
+Output this exact JSON structure:
+{
+  "totalAmount": "[total ETH amount as string]",
+  "recipients": [
+    {"address": "[ethereum address lowercase]", "amount": "[amount per recipient]"}
+  ],
+  "splitType": "equal",
+  "confidence": 1.0
+}`,
+          },
         ],
-        max_completion_tokens: 1500,
+        max_completion_tokens: 3000,
         response_format: { type: "json_object" },
       }),
     });
@@ -115,10 +123,13 @@ function fallbackParser(input: string): ParsedSplit {
   const totalAmount = amountMatch ? amountMatch[1] : "0";
 
   // Extract all Ethereum addresses
-  const addressPattern = /0x[a-fA-F0-9]{40}/g;
+  const addressPattern = /0x[a-fA-F0-9]{40}/gi;
   const addresses = input.match(addressPattern) || [];
 
-  if (addresses.length === 0 || totalAmount === "0") {
+  // Remove duplicates and ensure all addresses are valid
+  const uniqueAddresses = [...new Set(addresses)];
+
+  if (uniqueAddresses.length === 0 || totalAmount === "0") {
     return {
       totalAmount: "0",
       recipients: [],
@@ -128,10 +139,12 @@ function fallbackParser(input: string): ParsedSplit {
     };
   }
 
-  // Calculate equal split
-  const amountPerRecipient = (parseFloat(totalAmount) / addresses.length).toString();
+  console.log(`Found ${uniqueAddresses.length} unique addresses`);
 
-  const recipients = addresses.map(address => ({
+  // Calculate equal split with more precision
+  const amountPerRecipient = (parseFloat(totalAmount) / uniqueAddresses.length).toFixed(6);
+
+  const recipients = uniqueAddresses.map(address => ({
     address: address.toLowerCase(),
     amount: amountPerRecipient,
   }));
@@ -159,10 +172,18 @@ function validateAndCleanParsedSplit(parsed: any): ParsedSplit {
   if (Array.isArray(parsed.recipients)) {
     result.recipients = parsed.recipients
       .filter((recipient: any) => recipient && typeof recipient.address === "string" && isAddress(recipient.address))
-      .map((recipient: any) => ({
-        address: recipient.address.toLowerCase(),
-        amount: recipient.amount?.toString() || "0",
-      }));
+      .map((recipient: any) => {
+        // Limit decimal precision to 6 places
+        let amount = recipient.amount?.toString() || "0";
+        const amountNum = parseFloat(amount);
+        if (!isNaN(amountNum)) {
+          amount = amountNum.toFixed(6);
+        }
+        return {
+          address: recipient.address.toLowerCase(),
+          amount: amount,
+        };
+      });
   }
 
   if (typeof parsed.confidence === "number" && parsed.confidence >= 0 && parsed.confidence <= 1) {
