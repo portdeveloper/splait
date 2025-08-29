@@ -42,10 +42,21 @@ export async function POST(request: NextRequest) {
           {
             role: "user",
             content: `Extract the total ETH amount and all Ethereum addresses from this text. Calculate equal splits per address.
+
+IMPORTANT: Ethereum addresses must be exactly 42 characters (0x + 40 hex characters). If you find an invalid address, return an error instead.
             
 Text: ${input}
 
-Output this exact JSON structure:
+If any address is invalid (wrong length or format), output:
+{
+  "totalAmount": "0",
+  "recipients": [],
+  "splitType": "equal",
+  "confidence": 0,
+  "error": "Invalid address found: [address]. Ethereum addresses must be exactly 42 characters (0x + 40 hex characters). Please check and correct the address."
+}
+
+Otherwise, output this JSON structure:
 {
   "totalAmount": "[total ETH amount as string]",
   "recipients": [
@@ -122,12 +133,26 @@ function fallbackParser(input: string): ParsedSplit {
   const amountMatch = input.match(/(\d+(?:\.\d+)?)\s*ETH/i);
   const totalAmount = amountMatch ? amountMatch[1] : "0";
 
-  // Extract all Ethereum addresses
-  const addressPattern = /0x[a-fA-F0-9]{40}/gi;
+  // Extract all potential Ethereum addresses (including short ones to detect them)
+  const addressPattern = /0x[a-fA-F0-9]{39,40}/gi;
   const addresses = input.match(addressPattern) || [];
 
-  // Remove duplicates and ensure all addresses are valid
-  const uniqueAddresses = [...new Set(addresses)];
+  // Check for invalid addresses and provide specific error messages
+  const shortAddresses = addresses.filter(addr => addr.length === 41);
+  if (shortAddresses.length > 0) {
+    return {
+      totalAmount: "0",
+      recipients: [],
+      splitType: "equal",
+      confidence: 0,
+      error: `Invalid address found: ${shortAddresses[0]}. Ethereum addresses must be exactly 42 characters (0x + 40 hex characters). Please check and correct the address.`,
+    };
+  }
+
+  // Extract only valid 42-character addresses
+  const validAddressPattern = /0x[a-fA-F0-9]{40}/gi;
+  const validAddresses = input.match(validAddressPattern) || [];
+  const uniqueAddresses = [...new Set(validAddresses)];
 
   if (uniqueAddresses.length === 0 || totalAmount === "0") {
     return {
@@ -188,6 +213,10 @@ function validateAndCleanParsedSplit(parsed: any): ParsedSplit {
 
   if (typeof parsed.confidence === "number" && parsed.confidence >= 0 && parsed.confidence <= 1) {
     result.confidence = parsed.confidence;
+  }
+
+  if (typeof parsed.error === "string") {
+    result.error = parsed.error;
   }
 
   return result;
