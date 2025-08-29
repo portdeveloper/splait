@@ -2944,7 +2944,7 @@ __metadata:
     blo: ~1.2.0
     burner-connector: 0.0.16
     daisyui: 5.0.9
-    emojified: ../../../../experiments/colorful-addresses
+    emojified: ^1.0.0
     eslint: ~9.23.0
     eslint-config-next: ~15.2.3
     eslint-config-prettier: ~10.1.1
@@ -6282,12 +6282,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"emojified@file:../../../../experiments/colorful-addresses::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+"emojified@npm:^1.0.0":
   version: 1.0.0
-  resolution: "emojified@file:../../../../experiments/colorful-addresses#../../../../experiments/colorful-addresses::hash=d592db&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "emojified@npm:1.0.0"
   peerDependencies:
     react: ">=16.8.0"
-  checksum: db14ae6c228ba149753c0242364cee2aed0efb4513e00efb1b5f2dc5c2c935557ee450e94ee26340cbbc23d41d77eaf05f76a46b82a9e2315adb7e9a16d9fb23
+  checksum: 6e7b73155cfdb13a3d3ed4aedd93865a8fb58421d819475665826c07aabb36446690e3b01ae0c7aaf8481321748c73c476524fdf35b41e5cc39918dbeeb11afe
   languageName: node
   linkType: hard
 
