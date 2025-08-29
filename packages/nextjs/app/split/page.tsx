@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { parseEther } from "viem";
-import { EtherInput } from "~~/components/scaffold-eth";
+import { Address, EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { type ParsedSplit, parseUserInput } from "~~/services/aiParser";
 
@@ -64,7 +64,9 @@ function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: Tra
           <tbody>
             {parsedSplit.recipients.map((recipient, index) => (
               <tr key={index}>
-                <td className="font-mono text-sm">{recipient.address}</td>
+                <td>
+                  <Address address={recipient.address as `0x${string}`} format="short" size="sm" />
+                </td>
                 <td>{parseFloat(recipient.amount).toFixed(6)} ETH</td>
                 <td>${(parseFloat(recipient.amount) * 2500).toFixed(2)}</td>
               </tr>

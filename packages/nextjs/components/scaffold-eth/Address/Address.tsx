@@ -2,6 +2,7 @@
 
 import { AddressCopyIcon } from "./AddressCopyIcon";
 import { AddressLinkWrapper } from "./AddressLinkWrapper";
+import { generateEmojiPattern, isValidEthereumAddress } from "emojified";
 import { Address as AddressType, getAddress, isAddress } from "viem";
 import { normalize } from "viem/ens";
 import { useEnsAvatar, useEnsName } from "wagmi";
@@ -51,6 +52,19 @@ const copyIconSizeMap = {
   "4xl": "h-7 w-7",
 } as const;
 
+const emojiSizeMap = {
+  "3xs": "text-xs",
+  "2xs": "text-sm",
+  xs: "text-base",
+  sm: "text-lg",
+  base: "text-xl",
+  lg: "text-2xl",
+  xl: "text-3xl",
+  "2xl": "text-4xl",
+  "3xl": "text-5xl",
+  "4xl": "text-6xl",
+} as const;
+
 type SizeMap = typeof textSizeMap | typeof blockieSizeMap;
 
 const getNextSize = <T extends SizeMap>(sizeMap: T, currentSize: keyof T, step = 1): keyof T => {
@@ -67,12 +81,27 @@ const getPrevSize = <T extends SizeMap>(sizeMap: T, currentSize: keyof T, step =
   return sizes[prevIndex];
 };
 
+const EmojiPattern = ({ address, size }: { address: string; size: keyof typeof emojiSizeMap }) => {
+  if (!isValidEthereumAddress(address)) {
+    return null;
+  }
+
+  const emojiPattern = generateEmojiPattern(address);
+
+  return (
+    <span className={`${emojiSizeMap[size]} font-mono select-none`} title={`Emoji pattern: ${emojiPattern}`}>
+      {emojiPattern}
+    </span>
+  );
+};
+
 type AddressProps = {
   address?: AddressType;
   disableAddressLink?: boolean;
   format?: "short" | "long";
   size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
   onlyEnsOrAddress?: boolean;
+  showEmoji?: boolean;
 };
 
 export const Address = ({
@@ -81,6 +110,7 @@ export const Address = ({
   format,
   size = "base",
   onlyEnsOrAddress = false,
+  showEmoji = true,
 }: AddressProps) => {
   const checkSumAddress = address ? getAddress(address) : undefined;
 
@@ -167,7 +197,7 @@ export const Address = ({
               </AddressLinkWrapper>
             </span>
           ))}
-        <div className="flex">
+        <div className="flex items-center">
           <span className={`ml-1.5 ${textSizeMap[addressSize]} font-normal`}>
             <AddressLinkWrapper
               disableAddressLink={disableAddressLink}
@@ -176,6 +206,11 @@ export const Address = ({
               {onlyEnsOrAddress ? displayEnsOrAddress : displayAddress}
             </AddressLinkWrapper>
           </span>
+          {showEmoji && checkSumAddress && (
+            <div className="ml-2">
+              <EmojiPattern address={checkSumAddress} size={addressSize} />
+            </div>
+          )}
           <AddressCopyIcon
             className={`ml-1 ${copyIconSizeMap[addressSize]} cursor-pointer`}
             address={checkSumAddress}
