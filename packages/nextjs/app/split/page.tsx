@@ -5,15 +5,17 @@ import { parseEther } from "viem";
 import { Address, EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { type ParsedSplit, parseUserInput } from "~~/services/aiParser";
+import { useGlobalState } from "~~/services/store/store";
 
 interface TransactionPreviewProps {
   parsedSplit: ParsedSplit;
   onEdit: (parsedSplit: ParsedSplit) => void;
   onExecute: () => void;
   isExecuting: boolean;
+  ethPrice: number;
 }
 
-function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: TransactionPreviewProps) {
+function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting, ethPrice }: TransactionPreviewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editAmount, setEditAmount] = useState(parsedSplit.totalAmount);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -68,7 +70,7 @@ function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: Tra
                   <Address address={recipient.address as `0x${string}`} format="short" size="sm" />
                 </td>
                 <td>{parseFloat(recipient.amount).toFixed(6)} ETH</td>
-                <td>${(parseFloat(recipient.amount) * 2500).toFixed(2)}</td>
+                <td>${(parseFloat(recipient.amount) * ethPrice).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
@@ -98,7 +100,7 @@ function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: Tra
               </div>
             )}
           </div>
-          <div className="stat-desc">${(totalEth * 2500).toFixed(2)} USD</div>
+          <div className="stat-desc">${(totalEth * ethPrice).toFixed(2)} USD</div>
         </div>
 
         <div className="stat">
@@ -110,7 +112,7 @@ function TransactionPreview({ parsedSplit, onEdit, onExecute, isExecuting }: Tra
         <div className="stat">
           <div className="stat-title">Est. Gas Cost</div>
           <div className="stat-value text-sm">{gasCostEth} ETH</div>
-          <div className="stat-desc">${(gasCostEth * 2500).toFixed(2)} USD</div>
+          <div className="stat-desc">${(gasCostEth * ethPrice).toFixed(2)} USD</div>
         </div>
       </div>
 
@@ -178,6 +180,7 @@ export default function SplitPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
 
+  const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
   const { writeContractAsync: splitFunds } = useScaffoldWriteContract("FundSplitter");
 
   const handleParse = async () => {
@@ -316,6 +319,7 @@ export default function SplitPage() {
             onEdit={setParsedSplit}
             onExecute={handleExecute}
             isExecuting={isExecuting}
+            ethPrice={nativeCurrencyPrice || 0}
           />
         )}
 
