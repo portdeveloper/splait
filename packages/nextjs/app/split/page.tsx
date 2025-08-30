@@ -276,14 +276,14 @@ export default function SplitPage() {
         <div className="bg-base-100 border-base-300 border shadow-md shadow-secondary px-6 lg:px-8 mb-6 space-y-1 py-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold mb-0">Enter Instructions</h2>
-            <div className="text-sm text-base-content/60">{input.length}/500 characters</div>
+            <div className="text-sm text-base-content/60">{input.length} characters</div>
           </div>
 
           <textarea
             className="textarea textarea-bordered w-full h-32 text-base rounded-none"
             placeholder="Example: Split 10 ETH equally among these addresses: 0x123..., 0x456..., 0x789..."
             value={input}
-            onChange={e => setInput(e.target.value.slice(0, 500))}
+            onChange={e => setInput(e.target.value)}
           />
 
           <div className="mb-4">
