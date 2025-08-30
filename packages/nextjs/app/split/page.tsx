@@ -202,13 +202,20 @@ export default function SplitPage() {
 
     setIsExecuting(true);
     try {
-      // Convert parsed split data to contract format
-      const splits = parsedSplit.recipients.map(recipient => ({
-        recipient: recipient.address as `0x${string}`,
-        amount: parseEther(recipient.amount),
-      }));
-
       const totalValue = parseEther(parsedSplit.totalAmount);
+      const totalValueInWei = totalValue;
+
+      // Calculate equal split amounts properly to avoid rounding errors
+      const recipientCount = parsedSplit.recipients.length;
+      const amountPerRecipient = totalValueInWei / BigInt(recipientCount);
+      const remainder = totalValueInWei % BigInt(recipientCount);
+
+      // Convert parsed split data to contract format with proper wei amounts
+      const splits = parsedSplit.recipients.map((recipient, index) => ({
+        recipient: recipient.address as `0x${string}`,
+        // Give remainder to the first few recipients
+        amount: amountPerRecipient + (BigInt(index) < remainder ? BigInt(1) : BigInt(0)),
+      }));
 
       console.log("Executing transaction:", { splits, totalValue });
 
